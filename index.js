@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const User = require('./models/user');
+const bcrypt = require('bcrypt');
 
 const app = express();
 
@@ -17,9 +18,19 @@ app.set('views', 'views');
 
 app.use(express.urlencoded({ extended: true }));
 
+app.get('/', (req, res) => {
+    res.send('Hi')
+})
 
 app.post('/register', async (req, res) => {
-    res.send(req.body);
+    const { username, password } = req.body;
+    const hash = await bcrypt.hash(password, 12);
+    const user = new User({
+        username: username,
+        password: hash,
+    })
+    await user.save();
+    res.redirect('/');
 })
 
 app.get('/register', (req, res) => {
