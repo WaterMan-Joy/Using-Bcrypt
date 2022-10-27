@@ -37,9 +37,16 @@ app.post('/register', async (req, res) => {
         username: username,
         password: hash,
     })
-    await user.save();
-    req.session.user_id = user._id;
-    res.redirect('/login');
+    const itUser = await User.findOne({ username: username });
+    if (itUser) {
+        res.send('agin username')
+    }
+    else {
+        await user.save();
+        console.log(user.password)
+        req.session.user_id = user._id;
+        res.redirect('/login');
+    }
 })
 
 // TODO: POST LOGIN
@@ -48,6 +55,7 @@ app.post('/login', async (req, res) => {
     const user = await User.findOne({ username: username });
     const validPassword = await bcrypt.compare(password, user.password);
     if (validPassword) {
+        console.log(user.password)
         req.session.user_id = user._id;
         res.redirect('/secret');
     }
