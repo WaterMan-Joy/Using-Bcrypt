@@ -57,12 +57,19 @@ app.post('/login', async (req, res) => {
     if (validPassword) {
         console.log(user.password)
         req.session.user_id = user._id;
+        console.log(req.session.user_id);
         res.redirect('/secret');
     }
     else {
         res.redirect('/login');
     }
+})
 
+// TODO: POST LOGOUT
+app.post('/logout', (req, res) => {
+    // req.session.user_id = null;
+    req.session.destroy();
+    res.redirect('/login');
 })
 
 // TODO: GET LOGIN
@@ -78,10 +85,12 @@ app.get('/register', (req, res) => {
 // TODO: GET SECRET
 app.get('/secret', (req, res) => {
     if (req.session.user_id) {
-        res.send('It is saved!')
+        console.log(req.session.user_id);
+        res.render('secret');
     }
     else {
-        res.send('It is Not saved!!');
+        console.log(req.session.user_id);
+        res.send('It is not Login!!');
     }
 })
 
