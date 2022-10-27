@@ -33,6 +33,23 @@ app.post('/register', async (req, res) => {
     res.redirect('/');
 })
 
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username: username });
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (validPassword) {
+        res.send('Login success');
+    }
+    else {
+        res.redirect('/login');
+    }
+
+})
+
+app.get('/login', (req, res) => {
+    res.render('login');
+})
+
 app.get('/register', (req, res) => {
     res.render('register')
 })
