@@ -39,11 +39,7 @@ app.get('/', (req, res) => {
 // TODO: POST REGISTER
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
-    const hash = await bcrypt.hash(password, 12);
-    const user = new User({
-        username: username,
-        password: hash,
-    })
+    const user = new User({ username: username, password: password, });
     const itUser = await User.findOne({ username: username });
     if (itUser) {
         res.send('agin username')
@@ -59,12 +55,9 @@ app.post('/register', async (req, res) => {
 // TODO: POST LOGIN
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    const user = await User.findOne({ username: username });
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (validPassword) {
-        console.log(user.password);
-        req.session.user_id = user._id;
-        console.log(req.session.user_id);
+    const foundUser = await User.findAndValidate(username, password);
+    if (foundUser) {
+        req.session.user_id = foundUser._id;
         res.redirect('/secret');
     }
     else {
@@ -92,6 +85,10 @@ app.get('/register', (req, res) => {
 // TODO: GET SECRET
 app.get('/secret', requireLogin, (req, res) => {
     res.render('secret');
+})
+
+app.all((req, res, next) => {
+    res.send('err');
 })
 
 // TODO: LISTEN
