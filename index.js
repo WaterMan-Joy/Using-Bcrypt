@@ -25,6 +25,13 @@ app.use(session({
 
 }))
 
+const requireLogin = (req, res, next) => {
+    if (!req.session.user_id) {
+        return res.redirect('/login');
+    }
+    next();
+}
+
 app.get('/', (req, res) => {
     res.send('Hi')
 })
@@ -55,7 +62,7 @@ app.post('/login', async (req, res) => {
     const user = await User.findOne({ username: username });
     const validPassword = await bcrypt.compare(password, user.password);
     if (validPassword) {
-        console.log(user.password)
+        console.log(user.password);
         req.session.user_id = user._id;
         console.log(req.session.user_id);
         res.redirect('/secret');
@@ -83,15 +90,8 @@ app.get('/register', (req, res) => {
 })
 
 // TODO: GET SECRET
-app.get('/secret', (req, res) => {
-    if (req.session.user_id) {
-        console.log(req.session.user_id);
-        res.render('secret');
-    }
-    else {
-        console.log(req.session.user_id);
-        res.send('It is not Login!!');
-    }
+app.get('/secret', requireLogin, (req, res) => {
+    res.render('secret');
 })
 
 // TODO: LISTEN
